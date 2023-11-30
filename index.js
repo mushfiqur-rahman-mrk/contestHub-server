@@ -343,6 +343,11 @@ async function run() {
       const participationCount= await paymentCollection.countDocuments(query2)
       res.send({winningCount,participationCount})
     })
+    app.get('/best-creator',async(req,res)=>{
+      const query={role:'creator'}
+      const result = await usersCollection.find(query).toArray()
+      res.send(result)
+    })
     // ::::::::::::::: DELETE METHODS :::::::::::::::::
 
     app.delete('/pendingContest/:id', async(req,res)=>{
