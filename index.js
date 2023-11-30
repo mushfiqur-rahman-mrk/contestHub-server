@@ -220,10 +220,35 @@ async function run() {
       const result= await pendingContestCollection.updateOne(query,updatedoc,options)
       res.send(result)
     })
-    // ::::::::::::::: GET METHODS :::::::::::::::::
+    
+    app.patch('/users',async(req,res)=>{
+      const updatedUser=req.body;
+      // console.log(name);
+      const email=updatedUser.email
+      const query={email:email}
+      const updatedoc={
+        $set:{
+          name:updatedUser.name
+        }
+      }
+      const result = await usersCollection.updateOne(query,updatedoc)
+      res.send(result)
 
+    })
+
+
+
+    // ::::::::::::::: GET METHODS :::::::::::::::::
+    // ?sortField=participation&sortOrder=desc
     app.get('/contest', async(req,res)=>{
-        const result = await contestCollection.find().toArray()
+      let sortItem={}
+      const sortField=req.query.sortField
+      const sortOrder=req.query.sortOrder
+      if(sortField && sortOrder){
+        sortItem[sortField]=sortOrder
+      }
+      console.log(sortItem);
+        const result = await contestCollection.find().sort(sortItem).toArray()
         res.send(result)
     })
 
@@ -272,6 +297,8 @@ async function run() {
       res.send({admin})
 
     })
+ 
+ 
     app.get('/users/Creator/:email',async(req,res)=>{
       const email=req.params.email;
       // if(email !== req.decoded.email){
@@ -307,6 +334,14 @@ async function run() {
       const query={CreatorEmail:email}
       const result= await contestCollection.find(query).toArray()
       res.send(result)
+    })
+    app.get('/user-stats/:email',async(req,res)=>{
+      const email=req.params.email;
+      const query1={winnerEmail:email}
+      const query2={email:email}
+      const winningCount= await contestCollection.countDocuments(query1)
+      const participationCount= await paymentCollection.countDocuments(query2)
+      res.send({winningCount,participationCount})
     })
     // ::::::::::::::: DELETE METHODS :::::::::::::::::
 
